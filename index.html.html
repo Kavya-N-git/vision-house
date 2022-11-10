@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Banglore Home Price Prediction</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="">
+    	<meta name="author" content="">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<script>
+		function getBathValue() {
+			var uiBathrooms = document.getElementsByName("uiBathrooms");
+			for (var i in uiBathrooms) {
+				if (uiBathrooms[i].checked) {
+					return parseInt(i) + 1;
+				}
+			}
+			return -1; // Invalid Value
+		}
+
+		function getBHKValue() {
+			var uiBHK = document.getElementsByName("uiBHK");
+			for (var i in uiBHK) {
+				if (uiBHK[i].checked) {
+					return parseInt(i) + 1;
+				}
+			}
+			return -1; // Invalid Value
+		}
+
+		function onClickedEstimatePrice() {
+			console.log("Estimate price button clicked");
+			var sqft = document.getElementById("uiSqft");
+			var bhk = getBHKValue();
+			var bathrooms = getBathValue();
+			var location = document.getElementById("uiLocations");
+			var estPrice = document.getElementById("uiEstimatedPrice");
+
+			var url = "https://test-flask-again.herokuapp.com/predict_home_price"; //Use this if you are NOT using nginx 
+			//var url = "/api/predict_home_price"; // Use this if  you are using nginx.
+
+			$.post(url, {
+				total_sqft: parseFloat(sqft.value),
+				bhk: bhk,
+				bath: bathrooms,
+				location: location.value
+			}, function (data, status) {
+				console.log(data.estimated_price);
+				estPrice.innerHTML = "<h2>" + data.estimated_price.toString() + " Lakh</h2>";
+				console.log(status);
+			});
+		}
+
+		function onPageLoad() {
+			console.log("document loaded");
+			var url = "https://test-flask-again.herokuapp.com/get_location_names"; // Use this if you are NOT using nginx 
+			//var url = "/api/get_location_names"; // Use this if  you are using nginx. 
+			$.get(url, function (data, status) {
+				console.log("got response for get_location_names request");
+				if (data) {
+					var locations = data.locations;
+					var uiLocations = document.getElementById("uiLocations");
+					$('#uiLocations').empty();
+					for (var i in locations) {
+						var opt = new Option(locations[i]);
+						$('#uiLocations').append(opt);
+					}
+				}
+			});
+		}
+
+		window.onload = onPageLoad;
+	</script>
+	<style>
+		.switch-field {
+			display: flex;
+			margin-bottom: 36px;
+			overflow: hidden;
+		}
+
+		.switch-field input {
+			position: absolute !important;
+			clip: rect(0, 0, 0, 0);
+			height: 1px;
+			width: 1px;
+			border: 0;
+			overflow: hidden;
+		}
+
+		.switch-field label {
+			background-color: #e4e4e4;
+			color: rgba(0, 0, 0, 0.6);
+			font-size: 14px;
+			line-height: 1;
+			text-align: center;
+			padding: 8px 16px;
+			margin-right: -1px;
+			border: 1px solid rgba(0, 0, 0, 0.2);
+			box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px rgba(255, 255, 255, 0.1);
+			transition: all 0.1s ease-in-out;
+		}
+
+		.switch-field label:hover {
+			cursor: pointer;
+		}
+
+		.switch-field input:checked+label {
+			background-color: #a5dc86;
+			box-shadow: none;
+		}
+
+		.switch-field label:first-of-type {
+			border-radius: 4px 0 0 4px;
+		}
+
+		.switch-field label:last-of-type {
+			border-radius: 0 4px 4px 0;
+		}
+
+		.form {
+			max-width: 270px;
+			font-family: "Lucida Grande", Tahoma, Verdana, sans-serif;
+			font-weight: normal;
+			line-height: 1.625;
+			margin: 8px auto;
+			padding-left: 16px;
+			z-index: 2;
+		}
+
+		h2 {
+			font-size: 18px;
+			margin-bottom: 8px;
+		}
+
+		.area {
+			font-family: "Roboto", sans-serif;
+			outline: 0;
+			background: #f2f2f2;
+			width: 76%;
+			border: 0;
+			margin: 0 0 10px;
+			padding: 10px;
+			box-sizing: border-box;
+			font-size: 15px;
+			height: 35px;
+			border-radius: 5px;
+		}
+
+		.location {
+			font-family: "Roboto", sans-serif;
+			outline: 0;
+			background: #f2f2f2;
+			width: 76%;
+			border: 0;
+			margin: 0 0 10px;
+			padding: 10px;
+			box-sizing: border-box;
+			font-size: 15px;
+			height: 40px;
+			border-radius: 5px;
+		}
+
+		.submit {
+			background: #a5dc86;
+			width: 76%;
+			border: 0;
+			margin: 25px 0 10px;
+			box-sizing: border-box;
+			font-size: 15px;
+			height: 35px;
+			text-align: center;
+			border-radius: 5px;
+		}
+
+		.result {
+			background: #dcd686;
+			width: 76%;
+			border: 0;
+			margin: 25px 0 10px;
+			box-sizing: border-box;
+			font-size: 15px;
+			height: 35px;
+			text-align: center;
+		}
+
+		.img {
+			background: url('https://amaayahomes.com/wp-content/uploads/2018/10/Image-2-1500x750.jpg');
+			background-repeat: no-repeat;
+			background-size: auto;
+			background-size: 100% 100%;
+			-webkit-filter: blur(5px);
+			-moz-filter: blur(5px);
+			-o-filter: blur(5px);
+			-ms-filter: blur(5px);
+			filter: blur(15px);
+			position: fixed;
+			width: 100%;
+			height: 100%;
+			top: 0;
+			left: 0;
+			z-index: -1;
+		}
+
+		body,
+		html {
+			height: 100%;
+		}
+		.jumbotron{
+			background-color: #4267B2;
+			color: #f2f2f2;
+			font-family: "Times New Roman", Times, serif;
+		
+		}
+
+		.footer {
+   
+   left: 100;
+   bottom: 100;
+   width: 100%;
+   background-color: #4267B2;
+   color: white;
+   text-align: center;
+}
+		.loginform{
+  background: #e5e4e9;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  max-width: 380px;
+  width: 100%;
+  height: auto;
+  border-radius: 5px;
+  padding: 40px 30px 40px 0;
+  box-shadow: 0px 0px 50px #1c1447;
+}
+		.hr4 {
+        height: 20px;
+        background: url(/uploads/media/default/0001/01/12fbe0b5b3d06c7e379d646068faa12f70452638.png) no-repeat center;
+        border: none;
+      }
+
+	  
+.wrapper{
+  width: 100%;
+  height: 100vh;
+  background: url("login_bg.png") no-repeat top center;
+  background-size: cover;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Open Sans', sans-serif;
+}
+
+
+* {box-sizing: border-box;}
+body {font-family: Verdana, sans-serif;}
+.mySlides {display: none;}
+img {vertical-align: middle;}
+
+/* Slideshow container */
+.slideshow-container {
+  max-width: 1000px;
+  position: relative;
+  margin: auto;
+  padding: 60px 50px 60px 0;
+}
+
+/* Caption text */
+.text {
+  color: #f2f2f2;
+  font-size: 15px;
+  padding: 8px 12px;
+  position: absolute;
+  bottom: 8px;
+  width: 100%;
+  text-align: center;
+}
+
+/* Number text (1/3 etc) */
+.numbertext {
+  color: #f2f2f2;
+  font-size: 12px;
+  padding: 8px 12px;
+  position: absolute;
+  top: 0;
+}
+
+/* The dots/bullets/indicators */
+.dot {
+  height: 15px;
+  width: 15px;
+  margin: 0 2px;
+  background-color: #bbb;
+  border-radius: 50%;
+  display: inline-block;
+  transition: background-color 0.6s ease;
+}
+
+.active {
+  background-color: #717171;
+}
+
+/* Fading animation */
+.fade {
+  -webkit-animation-name: fade;
+  -webkit-animation-duration: 4.5s;
+  animation-name: fade;
+  animation-duration: 4.5s;
+}
+
+@-webkit-keyframes fade {
+  from {opacity: .4} 
+  to {opacity: 1}
+}
+
+@keyframes fade {
+  from {opacity: .4} 
+  to {opacity: 1}
+}
+
+/* On smaller screens, decrease text size */
+@media only screen and (max-width: 300px) {
+  .text {font-size: 11px}
+}
+
+
+#services
+{
+	background: black;
+	background-size: cover;
+	background-position: center;
+	color:#555!important;
+	background-attachment: fixed;
+	padding-top:50px;
+	padding-bottom: 50px;
+}
+
+
+
+#services h1
+{
+	text-align: center;
+	color:#fff!important;
+	padding-bottom: 10px;
+}
+
+#services h1::after
+{
+	content: '';
+	background:#efefef;
+	display: block;
+	height:3px;
+	width:170px;
+	margin: 20px auto 5px;
+}
+#services h3
+{
+	font-weight: 400;
+	color: white;
+	margin: auto;
+}
+#services p
+{
+	font-weight: 400;
+	color: white;
+	margin: auto;
+	margin-top: 20px;
+}
+
+
+
+
+
+.services .col-md-4:hover{
+	background:#007bff;
+	cursor: pointer;
+	transition: 0.7s;}
+
+footer
+{
+	text-align:center;
+	background-color:#777;
+	color:#fff;
+		
+
+}
+ 
+.container-fluid{
+	width: 100%;
+}
+	
+
+
+	</style>
+</head>
+
+<body>
+	<div class="jumbotron">
+		<center><h1><img src="https://cdn.dribbble.com/users/3853254/screenshots/6850346/c.jpg" alr="letter-b-logo-icon-vector-23845758" height="100" width="100"/>
+			VISION HOUSE</h1>
+		<p>Way For Better Choice  <span class="glyphicon glyphicon-home"></span></p> </center>
+	  </div>
+	<br>
+	<nav class="navbar navbar-inverse"><!-- black color-->
+  <div class="container-fluid"><!--full width-->
+    <div class="navbar-header"><!-- to be on head of the page-->
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>                        
+      </button>
+      <a class="navbar-brand" href="#">Vision House </a><!-- to make the text as a logo-->
+    </div>
+    <div class="collapse navbar-collapse" id="myNavbar"><!-- drop down of nav for mobile application-->
+      <ul class="nav navbar-nav"><!-- including support for dropdowns-->
+        <li class="active"><a href="#">Home</a></li>
+	
+        
+        <li><a href="#about"><span class="glyphicon glyphicon-asterisk ">About</span></a></li>
+        <li><a href="#services"><span class="glyphicon glyphicon-cog">Services</span></a></li>
+	<li><a href="#contact-us"><span class="glyphicon glyphicon-earphone ">Contact Us</span></a></li>
+	
+      </ul>
+      
+    </div>
+  </div>
+</nav>
+<br>
+
+	  <hr class="hr4"/>
+	 
+	  <div class="container-fluid">
+		<div class="row">
+		<div class="col-md-8">
+			
+			<div class="slideshow-container">
+
+				<div class="mySlides fade">
+				  <div class="numbertext">1 / 3</div>
+				  <img src="https://teja12.kuikr.com/is/a/c/880x425/public/images/apartments/original_img/k9yqlp.gif" style="width:100%">
+				  <div class="text">One</div>
+				</div>
+				
+				<div class="mySlides fade">
+				  <div class="numbertext">2 / 3</div>
+				  <img src="https://is1-3.housingcdn.com/4f2250e8/f37edca7ab4e1416d0bf53e400f12885/v0/fs/d_b_bhagawati_apartment-baranagar-kolkata-d_b_construction.jpeg" style="width:100%">
+				  <div class="text">Two</div>
+				</div>
+				
+				<div class="mySlides fade">
+				  <div class="numbertext">3 / 3</div>
+				  <img src="https://media.istockphoto.com/photos/europe-modern-complex-of-residential-buildings-picture-id1165384568?k=20&m=1165384568&s=612x612&w=0&h=CAnAr3uJtmkr0IQ2EPgm0IBoo8oCm-FEYEtyor8X_9I=" style="width:100%">
+				  <div class="text">Three</div>
+				</div>
+				
+				</div>
+				<br>
+				
+				<div style="text-align:center">
+				  <span class="dot"></span> 
+				  <span class="dot"></span> 
+				  <span class="dot"></span> 
+				</div>
+				
+				<script>
+				var slideIndex = 0;
+				showSlides();
+				
+				function showSlides() {
+				  var i;
+				  var slides = document.getElementsByClassName("mySlides");
+				  var dots = document.getElementsByClassName("dot");
+				  for (i = 0; i < slides.length; i++) {
+					slides[i].style.display = "none";  
+				  }
+				  slideIndex++;
+				  if (slideIndex > slides.length) {slideIndex = 1}    
+				  for (i = 0; i < dots.length; i++) {
+					dots[i].className = dots[i].className.replace(" active", "");
+				  }
+				  slides[slideIndex-1].style.display = "block";  
+				  dots[slideIndex-1].className += " active";
+				  setTimeout(showSlides, 5000); // Change image every 2 seconds
+				}
+				</script>
+		</div>
+		<div class="col-md-4">
+			<div class="wrapper">
+			<div class="loginform">
+		<div class="img"></div>
+		<form class="form">
+		<h2>Area (Square Feet)</h2>
+		<input class="area" type="number" id="uiSqft" class="floatLabel" name="Squareft" value="1000" min="600">
+		<h2>BHK</h2>
+		<div class="switch-field">
+			<input type="radio" id="radio-bhk-1" name="uiBHK" value="1" />
+			<label for="radio-bhk-1">5</label>
+			<input type="radio" id="radio-bhk-2" name="uiBHK" value="2" checked />
+			<label for="radio-bhk-2">4</label>
+			<input type="radio" id="radio-bhk-3" name="uiBHK" value="3" />
+			<label for="radio-bhk-3">3</label>
+			<input type="radio" id="radio-bhk-4" name="uiBHK" value="4" />
+			<label for="radio-bhk-4">2</label>
+			<input type="radio" id="radio-bhk-5" name="uiBHK" value="5" />
+			<label for="radio-bhk-5">1</label>
+		</div>
+	</form>
+	<form class="form">
+		<h2>Bath</h2>
+		<div class="switch-field">
+			<input type="radio" id="radio-bath-1" name="uiBathrooms" value="1" />
+			<label for="radio-bath-1">1</label>
+			<input type="radio" id="radio-bath-2" name="uiBathrooms" value="2" checked />
+			<label for="radio-bath-2">2</label>
+			<input type="radio" id="radio-bath-3" name="uiBathrooms" value="3" />
+			<label for="radio-bath-3">3</label>
+			<input type="radio" id="radio-bath-4" name="uiBathrooms" value="4" />
+			<label for="radio-bath-4">4</label>
+			<input type="radio" id="radio-bath-5" name="uiBathrooms" value="5" />
+			<label for="radio-bath-5">5</label>
+		</div>
+		<h2>Location</h2>
+		<div>
+			<select class="location" name="" id="uiLocations">
+				<option value="" disabled="disabled" selected="selected">Choose a Location</option>
+				<option>RR Nagar</option>
+				<option>Kammanahalli</option>
+			</select>
+		</div>
+		<button class="submit" onclick="onClickedEstimatePrice()" type="button">Estimate Price</button>
+		<div id="uiEstimatedPrice" class="result">
+			<h2></h2>
+		</div>
+		</form>
+		</div>
+		</div>
+		</div>
+		</div>
+		</div>
+
+<br>
+<br>
+<br>
+<br>
+
+<section id="about">
+	<div class="container">
+		<div class="row">
+			<div class="col-md-6">
+			<h2>About Us</h2>
+				<div class="about-content">
+				Welcome to Vision house, We're dedicated to giving you the very best of services, with a focus on dependability, customer service and uniqueness.
+				Founded in 2021 by KAVYA N & Raghuram, Vision House online Property marketplace to predict house price. 
+				Bengaluru home to about 11 million people, Bangalore, now known as Bengaluru, is India''s fourth largest city after Delhi, Kolkata and Mumbai. 
+				There is no doubt about the fact that Bangalore unique climate and rapid growth in IT/BT sectors has attracted people to relocate from all parts of India.
+				If you have any questions or comments, please don't hesitate to contact us.
+
+
+				</div>
+			
+			
+			</div>
+			<div class="col-md-6 skills-bar">
+			<p>Happy Customer</p>
+			<div class="progress">
+			<div class="progress-bar" style="width:90%;">90%</div>
+			</div>
+			
+			<p>Growth in Real-Estate</p>
+			<div class="progress">
+			<div class="progress-bar" style="width:75%;">75%</div>
+			</div>
+			
+			<p>Prediction</p>
+			<div class="progress">
+			<div class="progress-bar" style="width:90%;">90%</div>
+			</div>
+			
+			</div>
+		</div>
+		
+	</div>	
+		
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<!------Services Section------->		
+	<section id="services">
+	
+		<div class="container">
+			<h1>Our Services</h1>
+			<div class="row services" >
+				<div class= "col-md-4 text-center">
+					
+					<h3> 24/7 Support</h3>
+					<p>on house price related  queries</p>
+				</div>
+			
+				<div class="col-md-4 text-center">
+					
+					<h3>Price prediction</h3>
+					<p>Know latest market value</p>
+				</div>
+			
+				<div class="col-md-4 text-center">
+					
+					<h3>Bengaluru</h3>
+					<p>Bengaluru Based</p>
+				</div>
+			</div>
+		</div>
+	
+	</section>
+	
+<br>
+<br>
+<br>
+<br>
+<br>
+
+<br>
+<br>
+<br>
+<br>
+
+<footer id="contact-us">
+<h4>Ph no: 8967453429</h3>
+<h4>Email us:VisionHouses@gmail.com</h3>
+<h4>Address:#6,VISIONHOUSES,NEAR RV COLLEGE,MYSORE ROAD,BENGALURU-560059</h4>
+</footer>
+
+</body>
+
+</html>
